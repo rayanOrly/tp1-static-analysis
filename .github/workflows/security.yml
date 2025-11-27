@@ -1,0 +1,54 @@
+name: Security Scan
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      # -------- SCA (Snyk) --------
+      - name: Snyk Open Source (SCA)
+        uses: snyk/actions/node@master
+        with:
+          command: test --json-file-output=sca-report.json
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      # -------- SAST (Snyk Code) --------
+      - name: Snyk Code (SAST)
+        uses: snyk/actions/node@master
+        with:
+          command: code test --json-file-output=sast-report.json
+        env:
+          SNYK_TOKEN: ${{ secrets	SNYK_TOKEN }}
+
+      # -------- Secret scanning (Gitleaks) --------
+      - name: Secret scanning (Gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          args: detect --source . --report-format json --report-path secrets-report.json
+
+      # -------- Upload reports --------
+      - name: Upload reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-reports
+          path: |
+            sca-report.json
+            sast-report.json
+            secrets-report.json
