@@ -21,7 +21,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # -------- SCA (Snyk) --------
       - name: Snyk Open Source (SCA)
         uses: snyk/actions/node@master
         with:
@@ -29,21 +28,18 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
-      # -------- SAST (Snyk Code) --------
       - name: Snyk Code (SAST)
         uses: snyk/actions/node@master
         with:
           command: code test --json-file-output=sast-report.json
         env:
-          SNYK_TOKEN: ${{ secrets	SNYK_TOKEN }}
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
-      # -------- Secret scanning (Gitleaks) --------
       - name: Secret scanning (Gitleaks)
         uses: gitleaks/gitleaks-action@v2
         with:
           args: detect --source . --report-format json --report-path secrets-report.json
 
-      # -------- Upload reports --------
       - name: Upload reports
         uses: actions/upload-artifact@v3
         with:
