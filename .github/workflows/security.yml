@@ -34,10 +34,9 @@ jobs:
       - name: Snyk Code (SAST)
         uses: snyk/actions/node@master
         with:
-          # on exclut node_modules pour se concentrer sur ton code
-          command: code test --severity-threshold=high --exclude=node_modules --json-file-output=sast-report.json
+            command: code test --exclude=node_modules --json-file-output=sast-report.json
         env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+            SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       # -------- Secret scanning (Gitleaks) --------
       - name: Secret scanning (Gitleaks)
